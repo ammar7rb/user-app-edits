@@ -62,7 +62,22 @@ class CheckoutService implements CheckoutServiceInterface{
   }
 
   @override
-  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data) async {
-    return await checkoutRepositoryInterface.submitInvoicePayment(endpoint, data);
+  Future selectActivationInvoicePackage(int invoiceId, int packageId) async {
+    return await checkoutRepositoryInterface.selectActivationInvoicePackage(invoiceId, packageId);
+  }
+
+  @override
+  Future getCustomerPurchasePackages() async {
+    return await checkoutRepositoryInterface.getCustomerPurchasePackages();
+  }
+
+  @override
+  Future getCustomerPurchaseLimitSummary() async {
+    return await checkoutRepositoryInterface.getCustomerPurchaseLimitSummary();
+  }
+
+  @override
+  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data, {String? proofPath}) async {
+    return await checkoutRepositoryInterface.submitInvoicePayment(endpoint, data, proofPath: proofPath);
   }
 }

@@ -17,7 +17,8 @@ class DigitalPaymentScreen extends StatefulWidget {
   final String url;
   final bool fromWallet;
   final String orderId;
-  const DigitalPaymentScreen({super.key, required this.url, this.fromWallet = false, this.orderId = ''});
+  final bool activationInvoice;
+  const DigitalPaymentScreen({super.key, required this.url, this.fromWallet = false, this.orderId = '', this.activationInvoice = false});
 
   @override
   DigitalPaymentScreenState createState() => DigitalPaymentScreenState();
@@ -146,6 +147,16 @@ class DigitalPaymentScreenState extends State<DigitalPaymentScreen> {
     // }
 
     if (isSuccess) {
+      if (widget.activationInvoice) {
+        RouterHelper.getDashboardRoute(action: RouteAction.pushReplacement, page: 'packages');
+        _showResultUI(
+          isBottomSheet: false,
+          icon: Icons.check,
+          titleKey: 'payment_successful',
+          descKey: 'activation_invoice_under_review',
+        );
+        return;
+      }
       if (widget.orderId.trim().isNotEmpty &&  orderIds == null) {
         RouterHelper.getOrderDetailsScreenRoute(
           orderId: int .parse(widget.orderId),

@@ -70,6 +70,39 @@ Future<dynamic> getActivationInvoice() async {
 }
 
   @override
+  Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId) async {
+    try {
+      final response = await dioClient!.post(
+        AppConstants.activationInvoiceSelectPackageUri,
+        data: {'activation_invoice_id': invoiceId, 'package_id': packageId},
+      );
+      return response;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<dynamic> getCustomerPurchasePackages() async {
+    try {
+      final response = await dioClient!.get(AppConstants.customerPurchasePackagesUri);
+      return response;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<dynamic> getCustomerPurchaseLimitSummary() async {
+    try {
+      final response = await dioClient!.get(AppConstants.customerPurchaseLimitSummaryUri);
+      return response;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
   Future<ApiResponseModel> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote, bool? isCheckCreateAccount, String? password) async {
     try {
       Map<String?, String> fields = {};
@@ -178,9 +211,18 @@ Future<dynamic> getActivationInvoice() async {
   }
 
   @override
-Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data) async {
+Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data, {String? proofPath}) async {
   try {
-    final response = await dioClient!.post(endpoint, data: data);
+    dynamic requestData = data;
+    if (proofPath != null && proofPath.isNotEmpty) {
+      final formData = FormData.fromMap({...data});
+      formData.files.add(MapEntry(
+        'payment_proof',
+        await MultipartFile.fromFile(proofPath, filename: proofPath.split(RegExp(r'[/\\]')).last),
+      ));
+      requestData = formData;
+    }
+    final response = await dioClient!.post(endpoint, data: requestData);
     return response;
   } catch (e) {
     return null;

@@ -991,6 +991,18 @@
   "due_payment_for_order": "অর্ডারের বকেয়া পরিশোধ",
   "return_order_amount_by_admin": "অ্যাডমিন কর্তৃক অর্ডারের অর্থ ফেরত",
   "return_order_amount_by_seller": "বিক্রেতা কর্তৃক অর্ডারের অর্থ ফেরত",
-  "update_cart": "কার্ট আপডেট করুন"
+  "update_cart": "কার্ট আপডেট করুন",
+  "packages_and_insurance": "প্যাকেজ ও বীমা",
+  "packages": "প্যাকেজ",
+  "available_packages": "Available packages",
+  "current_package": "Current package",
+  "no_active_package": "No active package",
+  "package_price": "Package price",
+  "purchase_limit": "Purchase limit",
+  "remaining_limit": "Remaining limit",
+  "monthly_insurance": "Monthly insurance",
+  "insurance_valid_until": "Insurance valid until",
+  "activation_invoice_pending": "Activation invoice pending",
+  "total_amount": "Total amount"
 
 }

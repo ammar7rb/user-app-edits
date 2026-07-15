@@ -224,6 +224,9 @@ class CheckoutController with ChangeNotifier {
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
       offlineMethodSelectedIndex = 0;
       offlinePaymentModel = OfflinePaymentModel.fromJson(apiResponse.response?.data);
+      if (offlinePaymentModel?.offlineMethods?.isNotEmpty ?? false) {
+        setOfflinePaymentMethodSelectedIndex(0, notify: false);
+      }
     }
     else {
       ApiChecker.checkApi( apiResponse);
@@ -247,7 +250,7 @@ class CheckoutController with ChangeNotifier {
       offlineMethodSelectedName = offlinePaymentModel!.offlineMethods![offlineMethodSelectedIndex].methodName!;
     }
 
-    if(offlinePaymentModel!.offlineMethods != null && offlinePaymentModel!.offlineMethods!.isNotEmpty && offlinePaymentModel!.offlineMethods![index].methodInformations!.isNotEmpty){
+    if(offlinePaymentModel!.offlineMethods != null && offlinePaymentModel!.offlineMethods!.isNotEmpty && (offlinePaymentModel!.offlineMethods![index].methodInformations?.isNotEmpty ?? false)){
       for(int i= 0; i< offlinePaymentModel!.offlineMethods![index].methodInformations!.length; i++){
         inputFieldControllerList.add(TextEditingController());
         keyList.add(offlinePaymentModel!.offlineMethods![index].methodInformations![i].customerInput);
@@ -365,21 +368,121 @@ class CheckoutController with ChangeNotifier {
   // تعريف متغير الفاتورة
 dynamic _activationInvoice;
 dynamic get activationInvoice => _activationInvoice;
+dynamic _activationPaymentGateways = const <dynamic>[];
+dynamic get activationPaymentGateways => _activationPaymentGateways;
+
+dynamic _customerPackagesData;
+dynamic get customerPackagesData => _customerPackagesData;
+
+dynamic _customerLimitSummary;
+dynamic get customerLimitSummary => _customerLimitSummary;
 
 // دالة لجلب بيانات الفاتورة من السيرفر
-Future<void> getActivationInvoiceData() async {
+  Future<void> getActivationInvoiceData() async {
   // الاتصال بـ Service التي عرفناها مسبقاً
   var response = await checkoutServiceInterface.getActivationInvoice();
   
   // إذا كان الرد صحيحاً، نخزن البيانات
   if (response != null && response.statusCode == 200) {
-    _activationInvoice = response.data;
+    _activationInvoice = response.data is Map
+        ? response.data['invoice']
+        : response.data;
+    _activationPaymentGateways = response.data is Map
+        ? (response.data['payment_gateways'] ?? const <dynamic>[])
+        : const <dynamic>[];
     notifyListeners(); 
   }
 } 
+
+Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId) async {
+  final response = await checkoutServiceInterface.selectActivationInvoicePackage(invoiceId, packageId);
+  if (response != null && response.statusCode == 200) {
+    _activationInvoice = response.data['invoice'];
+    notifyListeners();
+  }
+  return response;
+}
+
+Future<void> startActivationInvoiceDigitalPayment(BuildContext context, {
+  required int invoiceId,
+  required String paymentMethod,
+}) async {
+  final response = await checkoutServiceInterface.submitInvoicePayment(
+    '/api/v1/customer/activation-invoice/pay',
+    {
+      'activation_invoice_id': invoiceId,
+      'payment_method': paymentMethod,
+      'payment_platform': 'app',
+      'current_currency_code': Provider.of<SplashController>(context, listen: false).myCurrency?.code,
+    },
+  );
+
+  if (response != null && response.statusCode == 200 && response.data['redirect_link'] != null) {
+    RouterHelper.getDigitalPaymentScreenRoute(
+      url: response.data['redirect_link'],
+      activationInvoice: true,
+      action: RouteAction.pushReplacement,
+    );
+  } else {
+    showCustomSnackBarWidget(
+      getTranslated('payment_method_not_properly_configured', context) ?? 'Payment could not be started',
+      context,
+      snackBarType: SnackBarType.error,
+    );
+  }
+}
+
+Future<void> startCustomerPackageDigitalPayment(BuildContext context, {
+  required int packageId,
+  required String paymentMethod,
+}) async {
+  final response = await checkoutServiceInterface.submitInvoicePayment(
+    '/api/v1/customer/purchase-packages/purchase',
+    {
+      'package_id': packageId,
+      'payment_method': paymentMethod,
+      'payment_platform': 'app',
+      'current_currency_code': Provider.of<SplashController>(context, listen: false).myCurrency?.code,
+    },
+  );
+
+  if (response != null && response.statusCode == 200 && response.data['redirect_link'] != null) {
+    RouterHelper.getDigitalPaymentScreenRoute(
+      url: response.data['redirect_link'],
+      action: RouteAction.pushReplacement,
+    );
+  } else {
+    showCustomSnackBarWidget(
+      getTranslated('payment_method_not_properly_configured', context) ?? 'Payment could not be started',
+      context,
+      snackBarType: SnackBarType.error,
+    );
+  }
+}
+
+Future<void> getCustomerPackagesData() async {
+  final response = await checkoutServiceInterface.getCustomerPurchasePackages();
+  if (response != null && response.statusCode == 200) {
+    _customerPackagesData = response.data;
+    _customerLimitSummary = response.data is Map
+        ? response.data['limit_summary']
+        : null;
+    notifyListeners();
+  }
+}
+
+Future<void> getCustomerLimitSummary() async {
+  final response = await checkoutServiceInterface.getCustomerPurchaseLimitSummary();
+  if (response != null && response.statusCode == 200) {
+    _customerLimitSummary = response.data is Map
+        ? response.data['limit_summary']
+        : response.data;
+    notifyListeners();
+  }
+}
 // دالة إرسال الدفع (سواء كان إلكتروني أو يدوي)
 // دالة الدفع (تجمع بين الدفع الإلكتروني واليدوي)
-Future<void> submitInvoicePayment(BuildContext context, {required bool isOffline, Map<String, dynamic>? offlineData}) async {
+Future<void> submitInvoicePayment(BuildContext context, {required bool isOffline, Map<String, dynamic>? offlineData, String? proofPath}) async {
   
   // تحديد الـ Endpoint بناءً على الملف الذي أرسلته
   String endpoint = isOffline 
@@ -388,7 +491,7 @@ Future<void> submitInvoicePayment(BuildContext context, {required bool isOffline
 
   try {
     // إرسال الـ POST (لو الدفع يدوي هيبعت الـ offlineData اللي فيها صورة الوصل مثلاً)
-   var response = await checkoutServiceInterface.submitInvoicePayment(endpoint, offlineData ?? {});
+   var response = await checkoutServiceInterface.submitInvoicePayment(endpoint, offlineData ?? {}, proofPath: proofPath);
     if (response.statusCode == 200) {
       if (isOffline) {
         // رسالة الدفع اليدوي كما طلب الـ PDF

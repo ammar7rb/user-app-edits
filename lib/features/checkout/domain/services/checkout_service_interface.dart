@@ -22,8 +22,14 @@ abstract class CheckoutServiceInterface{
 
   Future<dynamic> getActivationInvoice();
 
+  Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId);
+
+  Future<dynamic> getCustomerPurchasePackages();
+
+  Future<dynamic> getCustomerPurchaseLimitSummary();
+
   Future<dynamic> getReferralAmount(String? amount);
 
-  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data);
+  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data, {String? proofPath});
 
 }

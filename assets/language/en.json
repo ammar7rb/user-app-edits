@@ -994,6 +994,18 @@
   "due_payment_for_order": "Due payment for order",
   "return_order_amount_by_admin": "Return order amount by admin",
   "return_order_amount_by_seller": "Return order amount by seller",
-  "update_cart": "Update Cart"
+  "update_cart": "Update Cart",
+  "packages_and_insurance": "Packages & Insurance",
+  "packages": "Packages",
+  "available_packages": "Available packages",
+  "current_package": "Current package",
+  "no_active_package": "No active package",
+  "package_price": "Package price",
+  "purchase_limit": "Purchase limit",
+  "remaining_limit": "Remaining limit",
+  "monthly_insurance": "Monthly insurance",
+  "insurance_valid_until": "Insurance valid until",
+  "activation_invoice_pending": "Activation invoice pending",
+  "total_amount": "Total amount"
 
 }

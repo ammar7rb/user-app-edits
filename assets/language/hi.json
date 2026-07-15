@@ -995,5 +995,17 @@
   "due_payment_for_order": "ऑर्डर के लिए बकाया भुगतान",
   "return_order_amount_by_admin": "एडमिन द्वारा ऑर्डर राशि वापसी",
   "return_order_amount_by_seller": "विक्रेता द्वारा ऑर्डर राशि वापसी",
-  "update_cart": "कार्ट अपडेट करें"
+  "update_cart": "कार्ट अपडेट करें",
+  "packages_and_insurance": "पैकेज और बीमा",
+  "packages": "पैकेज",
+  "available_packages": "Available packages",
+  "current_package": "Current package",
+  "no_active_package": "No active package",
+  "package_price": "Package price",
+  "purchase_limit": "Purchase limit",
+  "remaining_limit": "Remaining limit",
+  "monthly_insurance": "Monthly insurance",
+  "insurance_valid_until": "Insurance valid until",
+  "activation_invoice_pending": "Activation invoice pending",
+  "total_amount": "Total amount"
 }

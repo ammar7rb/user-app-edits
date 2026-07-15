@@ -525,11 +525,13 @@ class RouterHelper {
     required String url,
     bool fromWallet = false,
     String? orderId,
+    bool activationInvoice = false,
   }) {
     final params = <String, String>{
       'url': Uri.encodeComponent(url),
       'fromWallet': fromWallet.toString(),
       'orderId': orderId.toString(),
+      'activationInvoice': activationInvoice.toString(),
     };
     final query = '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}';
     return _navigateRoute('$digitalPaymentScreen$query', route: action);
@@ -1276,6 +1278,7 @@ return AddNewAddressScreen(
             url: qp['url'] ?? '',
             fromWallet: qp['fromWallet'] == 'true',
             orderId : qp['orderId'] ?? '',
+            activationInvoice: qp['activationInvoice'] == 'true',
           );
         },
       ),

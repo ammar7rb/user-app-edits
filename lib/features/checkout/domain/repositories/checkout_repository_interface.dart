@@ -26,7 +26,13 @@ abstract class CheckoutRepositoryInterface implements RepositoryInterface{
   
   Future<dynamic> getActivationInvoice();
 
-  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data);
+  Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId);
+
+  Future<dynamic> getCustomerPurchasePackages();
+
+  Future<dynamic> getCustomerPurchaseLimitSummary();
+
+  Future<dynamic> submitInvoicePayment(String endpoint, Map<String, dynamic> data, {String? proofPath});
 
 
 }

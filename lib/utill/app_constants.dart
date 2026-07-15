@@ -134,6 +134,9 @@ import 'package:flutter_sixvalley_ecommerce/common/enums/local_caches_type_enum.
   static const String mergeGuestCart = '/api/v1/cart/get-merge-guest-cart';
   static const String orderDetailsTrack = '/api/v1/order/track-order-details?order_id=';
   static const String activationInvoiceUri = '/api/v1/customer/activation-invoice/current';
+  static const String activationInvoiceSelectPackageUri = '/api/v1/customer/activation-invoice/select-package';
+  static const String customerPurchasePackagesUri = '/api/v1/customer/purchase-packages';
+  static const String customerPurchaseLimitSummaryUri = '/api/v1/customer/purchase-packages/limit-summary';
 
 
   //address

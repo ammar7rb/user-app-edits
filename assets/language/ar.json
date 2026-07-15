@@ -989,6 +989,18 @@
   "due_payment_for_order": "الدفعة المستحقة للطلب",
   "return_order_amount_by_admin": "إرجاع مبلغ الطلب بواسطة المشرف",
   "return_order_amount_by_seller": "إرجاع مبلغ الطلب بواسطة البائع",
-  "update_cart": "تحديث السلة"
+  "update_cart": "تحديث السلة",
+  "packages_and_insurance": "الباقات والتأمين",
+  "packages": "الباقات",
+  "available_packages": "الباقات المتاحة",
+  "current_package": "الباقة الحالية",
+  "no_active_package": "لا توجد باقة مفعلة",
+  "package_price": "سعر الباقة",
+  "purchase_limit": "حد الشراء",
+  "remaining_limit": "الحد المتبقي",
+  "monthly_insurance": "التأمين الشهري",
+  "insurance_valid_until": "التأمين ساري حتى",
+  "activation_invoice_pending": "فاتورة التفعيل قيد السداد",
+  "total_amount": "الإجمالي"
 
 }
