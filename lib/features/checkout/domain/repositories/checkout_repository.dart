@@ -83,6 +83,18 @@ Future<dynamic> getActivationInvoice() async {
   }
 
   @override
+  Future<dynamic> createActivationInvoiceForPackage(int packageId) async {
+    try {
+      return await dioClient!.post(
+        AppConstants.activationInvoiceCreateForPackageUri,
+        data: {'package_id': packageId},
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
   Future<dynamic> getCustomerPurchasePackages() async {
     try {
       final response = await dioClient!.get(AppConstants.customerPurchasePackagesUri);
@@ -103,7 +115,7 @@ Future<dynamic> getActivationInvoice() async {
   }
 
   @override
-  Future<ApiResponseModel> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote, bool? isCheckCreateAccount, String? password) async {
+  Future<ApiResponseModel> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote, bool? isCheckCreateAccount, String? password, {String? paymentProofPath}) async {
     try {
       Map<String?, String> fields = {};
       Map<String?, String> info = {};
@@ -129,7 +141,20 @@ Future<dynamic> getActivationInvoice() async {
         'is_check_create_account' : isCheckAccount.toString(),
         'password' : password ?? '',
       });
-      Response response = await dioClient!.post(AppConstants.offlinePayment, data: fields);
+      dynamic requestData = fields;
+      if (paymentProofPath != null && paymentProofPath.isNotEmpty) {
+        final formFields = <String, dynamic>{
+          for (final entry in fields.entries)
+            if (entry.key != null) entry.key!: entry.value,
+        };
+        final formData = FormData.fromMap(formFields);
+        formData.files.add(MapEntry(
+          'payment_proof',
+          await MultipartFile.fromFile(paymentProofPath, filename: paymentProofPath.split(RegExp(r'[/\\]')).last),
+        ));
+        requestData = formData;
+      }
+      Response response = await dioClient!.post(AppConstants.offlinePayment, data: requestData);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));

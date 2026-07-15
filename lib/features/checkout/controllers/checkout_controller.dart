@@ -65,7 +65,7 @@ class CheckoutController with ChangeNotifier {
   Future<void> placeOrder({required Function callback, String? addressID,
         String? couponCode, String? couponAmount,
         String? billingAddressId, String? orderNote, String? transactionId,
-        String? paymentNote, int? id, String? name,bool isfOffline = false, bool wallet = false}) async {
+        String? paymentNote, String? paymentProofPath, int? id, String? name,bool isfOffline = false, bool wallet = false}) async {
     for(TextEditingController textEditingController in inputFieldControllerList) {
       inputValueList.add(textEditingController.text.trim());
 
@@ -76,7 +76,7 @@ class CheckoutController with ChangeNotifier {
     notifyListeners();
     ApiResponseModel apiResponse;
     isfOffline?
-    apiResponse = await checkoutServiceInterface.offlinePaymentPlaceOrder(addressID, couponCode, couponAmount, billingAddressId, orderNote, keyList, inputValueList, offlineMethodSelectedId, offlineMethodSelectedName, paymentNote, _isCheckCreateAccount, passwordController.text.trim()):
+    apiResponse = await checkoutServiceInterface.offlinePaymentPlaceOrder(addressID, couponCode, couponAmount, billingAddressId, orderNote, keyList, inputValueList, offlineMethodSelectedId, offlineMethodSelectedName, paymentNote, _isCheckCreateAccount, passwordController.text.trim(), paymentProofPath: paymentProofPath):
     wallet?
     apiResponse = await checkoutServiceInterface.walletPaymentPlaceOrder(addressID, couponCode, couponAmount, billingAddressId, orderNote, _isCheckCreateAccount, passwordController.text.trim()):
 
@@ -396,6 +396,15 @@ dynamic get customerLimitSummary => _customerLimitSummary;
 
 Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId) async {
   final response = await checkoutServiceInterface.selectActivationInvoicePackage(invoiceId, packageId);
+  if (response != null && response.statusCode == 200) {
+    _activationInvoice = response.data['invoice'];
+    notifyListeners();
+  }
+  return response;
+}
+
+Future<dynamic> createActivationInvoiceForPackage(int packageId) async {
+  final response = await checkoutServiceInterface.createActivationInvoiceForPackage(packageId);
   if (response != null && response.statusCode == 200) {
     _activationInvoice = response.data['invoice'];
     notifyListeners();

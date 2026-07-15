@@ -12,7 +12,7 @@ abstract class CheckoutServiceInterface{
     String? currentCurrencyCode,
   });
 
-  Future<dynamic> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote,bool? isCheckCreateAccount, String? password);
+  Future<dynamic> offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List <String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote,bool? isCheckCreateAccount, String? password, {String? paymentProofPath});
 
   Future<dynamic> walletPaymentPlaceOrder(String? addressID, String? couponCode,String? couponDiscountAmount, String? billingAddressId, String? orderNote, bool? isCheckCreateAccount, String? password);
 
@@ -23,6 +23,8 @@ abstract class CheckoutServiceInterface{
   Future<dynamic> getActivationInvoice();
 
   Future<dynamic> selectActivationInvoicePackage(int invoiceId, int packageId);
+
+  Future<dynamic> createActivationInvoiceForPackage(int packageId);
 
   Future<dynamic> getCustomerPurchasePackages();
 

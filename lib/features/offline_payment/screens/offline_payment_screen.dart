@@ -17,6 +17,7 @@ import 'package:flutter_sixvalley_ecommerce/common/basewidget/custom_textfield_w
 import 'package:flutter_sixvalley_ecommerce/features/checkout/widgets/shipping_details_widget.dart';
 import 'package:flutter_sixvalley_ecommerce/features/offline_payment/widgets/offline_card_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 class OfflinePaymentScreen extends StatefulWidget {
   final double payableAmount;
@@ -30,6 +31,7 @@ class OfflinePaymentScreen extends StatefulWidget {
 class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
    TextEditingController paymentController = TextEditingController();
    final GlobalKey<FormState> offlineFormKey = GlobalKey<FormState>();
+   XFile? paymentProof;
 
 
 
@@ -89,6 +91,23 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
                         itemBuilder: (context, index){
                           MethodInformations? methodInformation = checkoutProvider.offlinePaymentModel!.offlineMethods![checkoutProvider.offlineMethodSelectedIndex].methodInformations?[index];
 
+                          if (methodInformation?.customerInput == 'payment_screenshot') {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  final image = await ImagePicker().pickImage(
+                                    source: ImageSource.gallery,
+                                    imageQuality: 85,
+                                  );
+                                  if (image != null && mounted) setState(() => paymentProof = image);
+                                },
+                                icon: const Icon(Icons.upload_file),
+                                label: Text(paymentProof == null ? 'Upload payment screenshot' : paymentProof!.name),
+                              ),
+                            );
+                          }
+
                           return Padding(
                             padding: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
                             child: CustomTextFieldWidget(
@@ -134,6 +153,16 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
                           onTap: (){
                             if(offlineFormKey.currentState?.validate() ?? false){
 
+                              final selectedMethod = checkoutProvider.offlinePaymentModel!.offlineMethods![checkoutProvider.offlineMethodSelectedIndex];
+                              final screenshotRequired = selectedMethod.methodInformations?.any((field) =>
+                                field.customerInput == 'payment_screenshot' && field.isRequired == 1) ?? false;
+                              if (screenshotRequired && paymentProof == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please select the payment screenshot.')),
+                                );
+                                return;
+                              }
+
                               String paymentNote = paymentController.text.trim();
                               String orderNote = checkoutProvider.orderNoteController.text.trim();
                               String couponCode = couponProvider.discount != null && couponProvider.discount != 0? couponProvider.couponCode : '';
@@ -156,6 +185,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
                                 couponCode: couponCode,
                                 couponAmount: couponCodeAmount,
                                 isfOffline: true,
+                                paymentProofPath: paymentProof?.path,
                               );
                             }
                           },

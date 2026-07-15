@@ -42,8 +42,8 @@ class CheckoutService implements CheckoutServiceInterface{
   }
 
   @override
-  Future offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List<String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote,bool? isCheckCreateAccount, String? password) async{
-    return await checkoutRepositoryInterface.offlinePaymentPlaceOrder(addressID, couponCode, couponDiscountAmount, billingAddressId, orderNote, typeKey, typeValue, id, name, paymentNote, isCheckCreateAccount, password);
+  Future offlinePaymentPlaceOrder(String? addressID, String? couponCode, String? couponDiscountAmount, String? billingAddressId, String? orderNote, List<String?> typeKey, List<String> typeValue, int? id, String name, String? paymentNote,bool? isCheckCreateAccount, String? password, {String? paymentProofPath}) async{
+    return await checkoutRepositoryInterface.offlinePaymentPlaceOrder(addressID, couponCode, couponDiscountAmount, billingAddressId, orderNote, typeKey, typeValue, id, name, paymentNote, isCheckCreateAccount, password, paymentProofPath: paymentProofPath);
   }
 
   @override
@@ -64,6 +64,11 @@ class CheckoutService implements CheckoutServiceInterface{
   @override
   Future selectActivationInvoicePackage(int invoiceId, int packageId) async {
     return await checkoutRepositoryInterface.selectActivationInvoicePackage(invoiceId, packageId);
+  }
+
+  @override
+  Future createActivationInvoiceForPackage(int packageId) async {
+    return await checkoutRepositoryInterface.createActivationInvoiceForPackage(packageId);
   }
 
   @override

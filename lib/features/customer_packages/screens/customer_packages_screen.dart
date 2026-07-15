@@ -35,9 +35,15 @@ class _CustomerPackagesScreenState extends State<CustomerPackagesScreen> {
     return value.toString();
   }
 
-  Future<String?> _chooseGateway(BuildContext context, dynamic data) {
+  Future<String?> _chooseGateway(BuildContext context, dynamic data) async {
     final gateways = (_value(data, 'payment_gateways', const <dynamic>[]) as List?) ?? const <dynamic>[];
-    return showModalBottomSheet<String>(
+    if (gateways.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No digital payment gateway is available. You can use manual payment.')),
+      );
+      return null;
+    }
+    return await showModalBottomSheet<String>(
       context: context,
       builder: (context) => SafeArea(
         child: ListView(
@@ -48,6 +54,24 @@ class _CustomerPackagesScreenState extends State<CustomerPackagesScreen> {
           )).toList(),
         ),
       ),
+    );
+  }
+
+  Future<String?> _choosePaymentType(BuildContext context) {
+    return showModalBottomSheet<String>(
+      context: context,
+      builder: (context) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(
+          leading: const Icon(Icons.credit_card),
+          title: const Text('Pay online'),
+          onTap: () => Navigator.pop(context, 'online'),
+        ),
+        ListTile(
+          leading: const Icon(Icons.upload_file),
+          title: const Text('Manual payment'),
+          onTap: () => Navigator.pop(context, 'offline'),
+        ),
+      ])),
     );
   }
 
@@ -65,9 +89,27 @@ class _CustomerPackagesScreenState extends State<CustomerPackagesScreen> {
       return;
     }
 
-    final gateway = await _chooseGateway(context, data);
-    if (gateway != null && mounted) {
-      await controller.startCustomerPackageDigitalPayment(context, packageId: packageId, paymentMethod: gateway);
+    final paymentType = await _choosePaymentType(context);
+    if (paymentType == 'offline' && mounted) {
+      final response = await controller.createActivationInvoiceForPackage(packageId);
+      if (response != null && response.statusCode == 200 && mounted) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ActivationInvoiceScreen(invoiceData: controller.activationInvoice)),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not create the package and insurance invoice.')),
+        );
+      }
+      return;
+    }
+
+    if (paymentType == 'online' && mounted) {
+      final gateway = await _chooseGateway(context, data);
+      if (gateway != null && mounted) {
+        await controller.startCustomerPackageDigitalPayment(context, packageId: packageId, paymentMethod: gateway);
+      }
     }
   }
 
